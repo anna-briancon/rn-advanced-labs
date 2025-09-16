@@ -31,3 +31,6 @@ rn-advanced-labs/
 ├─ App.tsx
 └─ ...
 ```
+- **Un dossier par TP** (`tp1-profile-card`, `tp2-navigation`, etc.).
+- `components/` et `screens/` dans chaque dossier.
+- `index.tsx` exporte l’écran principal du TP.
