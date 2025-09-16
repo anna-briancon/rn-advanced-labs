@@ -21,6 +21,11 @@ export default function HomeScreen() {
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
       </ThemedView>
+      <ThemedView style={{ marginTop: 24, alignItems: 'center' }}>
+        <Link href="/detail/42" style={{ color: '#007AFF', fontSize: 18 }}>
+          Aller au détail de l'élément 42
+        </Link>
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
