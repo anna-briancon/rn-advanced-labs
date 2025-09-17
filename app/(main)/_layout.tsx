@@ -5,6 +5,8 @@ import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -47,7 +49,7 @@ export default function TabLayout() {
         options={{
           title: "TP3 - Formik",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="checkmark.seal.fill" color={color} />
+            <AntDesign name="form" size={24} color={color} />
           ),
         }}
       />
@@ -70,8 +72,45 @@ export default function TabLayout() {
         options={{
           title: "TP3 - RHF",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="checkmark.seal.fill" color={color} />
+            <AntDesign name="form" size={24} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="TP3-forms/rhf/components/FormTextInput"
+        options={{
+          title: "TP3 - RHF",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="TP3-forms/rhf/components/TermsSwitch"
+        options={{
+          title: "TP3 - RHF",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="tp4-robots"
+        options={{
+          title: "TP4 - Robots",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="robot" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="tp4-robots/edit/[id]"
+        options={{
+          title: "Éditer Robot",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="tp4-robots/create"
+        options={{
+          title: "Créer Robot",
+          href: null,
         }}
       />
     </Tabs>
