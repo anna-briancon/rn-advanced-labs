@@ -70,6 +70,21 @@ export default function HomeScreen() {
             Formulaire avec React Hook Form
           </ThemedText>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.8}
+          onPress={() => router.push("/tp4-robots")}
+        >
+          <View style={styles.cardContent}>
+            <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
+              TP4 – Robots
+            </ThemedText>
+            <IconSymbol name="chevron.right" size={15} color="#C7C7CC" style={styles.chevron} />
+          </View>
+          <ThemedText style={styles.cardSubtitle}>
+            Liste, création, édition et suppression de robots
+          </ThemedText>
+        </TouchableOpacity>
       </View>
     </ParallaxScrollView>
   );
