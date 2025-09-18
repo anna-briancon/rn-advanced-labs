@@ -13,7 +13,7 @@ export default function Index() {
     (async () => {
       const saved = await AsyncStorage.getItem(NAV_KEY);
       if (!saved || saved === '/' || saved === '/index') {
-        router.replace('/home');
+        router.replace('./home');
       }
       setChecked(true);
     })();

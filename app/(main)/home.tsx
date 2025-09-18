@@ -34,7 +34,12 @@ export default function HomeScreen() {
             <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
               Détail de l'élément 42
             </ThemedText>
-            <IconSymbol name="chevron.right" size={15} color="#C7C7CC" style={styles.chevron} />
+            <IconSymbol
+              name="chevron.right"
+              size={15}
+              color="#C7C7CC"
+              style={styles.chevron}
+            />
           </View>
           <ThemedText style={styles.cardSubtitle}>
             Voir les informations détaillées
@@ -49,7 +54,12 @@ export default function HomeScreen() {
             <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
               TP3 – Formik
             </ThemedText>
-            <IconSymbol name="chevron.right" size={15} color="#C7C7CC" style={styles.chevron} />
+            <IconSymbol
+              name="chevron.right"
+              size={15}
+              color="#C7C7CC"
+              style={styles.chevron}
+            />
           </View>
           <ThemedText style={styles.cardSubtitle}>
             Formulaire avec Formik
@@ -64,7 +74,12 @@ export default function HomeScreen() {
             <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
               TP3 – RHF
             </ThemedText>
-            <IconSymbol name="chevron.right" size={15} color="#C7C7CC" style={styles.chevron} />
+            <IconSymbol
+              name="chevron.right"
+              size={15}
+              color="#C7C7CC"
+              style={styles.chevron}
+            />
           </View>
           <ThemedText style={styles.cardSubtitle}>
             Formulaire avec React Hook Form
@@ -77,12 +92,37 @@ export default function HomeScreen() {
         >
           <View style={styles.cardContent}>
             <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
-              TP4 – Robots
+              TP4 – Robots Zustand
             </ThemedText>
-            <IconSymbol name="chevron.right" size={15} color="#C7C7CC" style={styles.chevron} />
+            <IconSymbol
+              name="chevron.right"
+              size={15}
+              color="#C7C7CC"
+              style={styles.chevron}
+            />
           </View>
           <ThemedText style={styles.cardSubtitle}>
-            Liste, création, édition et suppression de robots
+            CRUD de robots avec Zustand
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.8}
+          onPress={() => router.push("/tp4-robots-rtk")}
+        >
+          <View style={styles.cardContent}>
+            <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
+              TP4 – Robots RTK
+            </ThemedText>
+            <IconSymbol
+              name="chevron.right"
+              size={15}
+              color="#C7C7CC"
+              style={styles.chevron}
+            />
+          </View>
+          <ThemedText style={styles.cardSubtitle}>
+            CRUD de robots avec Redux Toolkit
           </ThemedText>
         </TouchableOpacity>
       </View>
@@ -110,32 +150,32 @@ const styles = StyleSheet.create({
   cardsContainer: {
     marginTop: 32,
     gap: 18,
-    alignItems: 'center',
+    alignItems: "center",
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 18,
     width: 340,
     paddingVertical: 18,
     paddingHorizontal: 22,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 3,
     marginBottom: 0,
   },
   cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   cardTitle: {
     fontSize: 19,
-    color: '#11181C',
+    color: "#11181C",
   },
   cardSubtitle: {
-    color: '#6e6e73',
+    color: "#6e6e73",
     fontSize: 15,
     marginTop: 4,
     marginLeft: 2,

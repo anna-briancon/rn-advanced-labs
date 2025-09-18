@@ -9,7 +9,8 @@ Application **Expo React Native** servant de support pour tous les TP du cours.
 - [1️⃣ TP1 – Profile Card](#1️⃣-tp1--profile-card)
 - [2️⃣ TP2 - Navigation](#2️⃣-tp2---navigation-persistance--deep-linking-avec-expo-router)
 - [3️⃣ TP3 – Formulaires avancés (Formik vs React Hook Form)](#3️⃣-tp3--formulaires-avancés-formik-vs-react-hook-form)
-- [4️⃣ TP4 – Robots (CRUD + Zustand)](#4️⃣-tp4---robots-crud--zustand)
+- [4️⃣ TP4A – Robots (CRUD + Zustand)](#4️⃣-tp4a--robots-crud--zustand)
+- [4️⃣ TP4B – Robots (CRUD + Redux Toolkit)](#4️⃣-tp4b--robots-crud--redux-toolkit)
 
 
 
@@ -159,7 +160,7 @@ _Voir `app/(main)/TP3-forms/formik/` et `app/(main)/TP3-forms/rhf/`._
 
 ---
 
-## 4️⃣ TP4 – Robots (CRUD + Zustand)
+## 4️⃣ TP4A – Robots (CRUD + Zustand)
 
 **Choix de stack formulaire**
 
@@ -230,3 +231,65 @@ components/
 | Liste robots | Créer robot | Modifier robot |
 |---|---|---|
 | <img src="./docs/captures/TP4/LISTE.PNG" width="220" /> | <img src="./docs/captures/TP4/CREATE.PNG" width="220" /> | <img src="./docs/captures/TP4/EDIT.PNG" width="220" /> |
+
+## 4️⃣ TP4B – Robots (CRUD + Redux Toolkit)
+
+**Dépendances & rôles**
+| Package                | Rôle principal                                                                 |
+|------------------------|-------------------------------------------------------------------------------|
+| @reduxjs/toolkit (RTK) | State management, reducers, actions, slices                                   |
+| react-redux            | Liaison React <-> Redux (hooks, Provider)                                     |
+| redux-persist          | Persistance du state Redux (AsyncStorage)                                     |
+
+---
+
+**Arborescence**
+```
+app/(main)/tp4-robots-rtk/
+  index.tsx            # Liste des robots
+  create.tsx           # Création
+  edit/[id].tsx        # Édition
+  _layout.tsx          # Stack navigation
+app/tp4-robots-rtk/
+  store.ts             # Store Redux + persistance
+  rootReducer.ts       # combineReducers
+  robots/robotsSlice.ts# Slice robots (CRUD)
+  robots/selectors.ts  # Selecteurs
+  hooks.ts             # Typed hooks
+  validation/robotSchema.ts # Zod : schéma de validation
+  components/RobotForm.tsx  # Formulaire réutilisable
+```
+**Routes principales**
+- `/tp4-robots-rtk` : liste
+- `/tp4-robots-rtk/create` : création
+- `/tp4-robots-rtk/edit/[id]` : édition
+
+---
+
+**Règles de validation**
+- `name` : string, min 2, unique (pas de doublon)
+- `label` : string, min 3
+- `year` : entier, 1950 ≤ year ≤ année courante
+- `type` : enum obligatoire (`industrial`, `service`, `medical`, `educational`, `other`)
+
+---
+
+**Choix de stack formulaire**
+- **Formik** + Zod
+- **Justification** : Il est plus simple à intégrer et pour faire l'autre solution que pour le TP4-A
+
+---
+
+**Plan de tests manuels exécutés**
+- **Create** :
+  - Succès → nouvel item dans la liste
+  - Échec (name dupliqué, year invalide) → erreurs affichées, pas de création
+- **Edit** :
+  - Charger un robot existant, modifier, sauvegarder → retour à la liste mise à jour
+- **Delete** :
+  - Suppression confirmée → l’item disparaît, feedback visuel/haptique
+- **Persistance** :
+  - Créer 2 robots, redémarrer l’app → robots toujours présents
+- **UX** :
+  - Clavier ne masque pas le bouton submit
+  - Submit désactivé tant que formulaire invalide
