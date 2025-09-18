@@ -113,6 +113,15 @@ export default function TabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="tp4-robots-rtk"
+        options={{
+          title: "TP4 - Robots RTK",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="robot" size={28} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
