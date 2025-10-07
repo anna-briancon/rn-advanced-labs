@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as robotRepo from '../services/robotRepo';
 
 // Fetch all robots
-export function useRobotsQuery() {
+export function useRobotsQuery(options?: { q?: string; sort?: 'name' | 'year' }) {
+  const { q = '', sort = 'name' } = options || {};
   return useQuery({
-    queryKey: ['robots'],
-    queryFn: () => robotRepo.list({ archived: false }),
+    queryKey: ['robots', q, sort],
+    queryFn: () => robotRepo.list({ archived: false, q, sort }),
   });
 }
 

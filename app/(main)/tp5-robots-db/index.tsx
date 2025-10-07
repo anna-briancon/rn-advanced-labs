@@ -3,21 +3,14 @@ import * as FileSystem from "expo-file-system";
 import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import React, { useState } from "react";
-import {
-	ActivityIndicator,
-	Alert,
-	FlatList,
-	StyleSheet,
-	Text,
-	TextInput,
-	TouchableOpacity,
-	View,
-} from "react-native";
-import {
-	useDeleteRobot,
-	useRobotsQuery,
-} from "../../tp5-robots-db/hooks/useRobotQueries";
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { ThemedText } from '../../../components/themed-text';
+import { ThemedView } from '../../../components/themed-view';
+import { IconSymbol } from '../../../components/ui/icon-symbol';
+import { useDeleteRobot, useRobotsQuery } from "../../tp5-robots-db/hooks/useRobotQueries";
 import * as robotRepo from "../../tp5-robots-db/services/robotRepo";
+
+
 
 type Robot = robotRepo.Robot;
 
@@ -26,13 +19,7 @@ export default function RobotsListScreen() {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"name" | "year">("name");
   const [refreshing, setRefreshing] = useState(false);
-
-  const {
-    data: robots = [],
-    isLoading,
-    refetch,
-    isFetching,
-  } = useRobotsQuery();
+  const { data: robots = [], isLoading, refetch, isFetching } = useRobotsQuery({ q, sort });
 
   // EXPORTER LES ROBOTS EN JSON
   const handleExport = async () => {
@@ -113,51 +100,35 @@ export default function RobotsListScreen() {
   };
 
   const renderItem = ({ item }: { item: Robot }) => (
-    <View style={styles.item}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.label}>
-          {item.label} • {item.year} • {item.type}
-        </Text>
+    <View style={styles.card}>
+      <View style={styles.cardContent}>
+        <View style={{ flex: 1 }}>
+          <ThemedText type="defaultSemiBold" style={styles.cardTitle}>{item.name}</ThemedText>
+          <ThemedText style={styles.cardSubtitle}>{item.label}</ThemedText>
+          <ThemedText style={{ ...styles.cardMeta, fontStyle: 'italic' }}>Année : {item.year}</ThemedText>
+          <ThemedText style={{ ...styles.cardMeta, fontStyle: 'italic' }}>Type : {item.type}</ThemedText>
+        </View>
+        <View style={styles.actions}>
+          <Pressable onPress={() => router.push({ pathname: "/tp5-robots-db/edit/[id]", params: { id: item.id } })} style={styles.iconBtn} hitSlop={8}>
+            <IconSymbol name="square.and.pencil" size={22} color="#1f6feb" />
+          </Pressable>
+          <Pressable onPress={() => handleDelete(item.id)} style={styles.iconBtn} hitSlop={8}>
+            <IconSymbol name="trash" size={22} color="#d11a2a" />
+          </Pressable>
+        </View>
       </View>
-      <TouchableOpacity
-        style={styles.editBtn}
-        onPress={() =>
-          router.push({
-            pathname: "/tp5-robots-db/edit/[id]",
-            params: { id: item.id },
-          })
-        }
-      >
-        <Text style={styles.editText}>Edit</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.deleteBtn}
-        onPress={() => handleDelete(item.id)}
-      >
-        <Text style={styles.deleteText}>Delete</Text>
-      </TouchableOpacity>
     </View>
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Robots</Text>
-        <View style={{ flexDirection: "row", gap: 8 }}>
-          <TouchableOpacity style={styles.exportBtn} onPress={handleExport}>
-            <Text style={styles.exportText}>Exporter</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.importBtn} onPress={handleImport}>
-            <Text style={styles.importText}>Importer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => router.push("/tp5-robots-db/create")}
-          >
-            <Text style={styles.addText}>+</Text>
-          </TouchableOpacity>
-        </View>
+    <ThemedView style={styles.container}>
+      <View style={styles.actionsRow}>
+        <Pressable style={styles.exportBtn} onPress={handleExport} accessibilityLabel="Exporter">
+          <IconSymbol name="square.and.arrow.up" size={28} color="#1f6feb" />
+        </Pressable>
+        <Pressable style={styles.importBtn} onPress={handleImport} accessibilityLabel="Importer">
+          <IconSymbol name="square.and.arrow.down" size={28} color="#6e6e73" />
+        </Pressable>
       </View>
       <View style={styles.searchSort}>
         <TextInput
@@ -167,13 +138,13 @@ export default function RobotsListScreen() {
           onChangeText={setQ}
           onSubmitEditing={() => refetch()}
         />
-        <TouchableOpacity
-          onPress={() => setSort(sort === "name" ? "year" : "name")}
+        <Pressable onPress={() => setSort(sort === "name" ? "year" : "name")}
+          style={styles.sortBtn}
         >
-          <Text style={styles.sortBtn}>
+          <ThemedText style={{ color: '#1f6feb', fontWeight: 'bold' }}>
             Trier: {sort === "name" ? "Nom" : "Année"}
-          </Text>
-        </TouchableOpacity>
+          </ThemedText>
+        </Pressable>
       </View>
       {isLoading || isFetching ? (
         <ActivityIndicator style={{ marginTop: 40 }} />
@@ -184,90 +155,144 @@ export default function RobotsListScreen() {
           renderItem={renderItem}
           refreshing={refreshing}
           onRefresh={onRefresh}
-          ListEmptyComponent={
-            <Text style={{ textAlign: "center", marginTop: 40 }}>
-              Aucun robot
-            </Text>
-          }
+          contentContainerStyle={{ paddingBottom: 100 }}
+          ListEmptyComponent={<ThemedText style={{ textAlign: 'center', marginTop: 40 }}>Aucun robot.</ThemedText>}
         />
       )}
-    </View>
+      {/* Bouton flottant "Créer" */}
+      <Pressable
+        style={styles.fab}
+        onPress={() => router.push('/tp5-robots-db/create')}
+        accessibilityLabel="Créer un robot"
+      >
+        <IconSymbol name="plus" size={28} color="#fff" />
+      </Pressable>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
+  container: {
+    flex: 1,
+    backgroundColor: '#F2F2F7',
+    paddingHorizontal: 0,
+    paddingTop: 0,
   },
-  title: { fontSize: 24, fontWeight: "bold" },
-  addBtn: {
-    backgroundColor: "#007AFF",
-    borderRadius: 20,
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 16,
+    paddingBottom: 8,
+    paddingHorizontal: 8,
+    backgroundColor: 'transparent',
   },
-  addText: { color: "#fff", fontSize: 28, fontWeight: "bold", marginTop: -2 },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#11181C',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 18,
+    paddingHorizontal: 0,
+    marginBottom: 12,
+    marginTop: 10,
+  },
   exportBtn: {
-    backgroundColor: "#34C759",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+    width: 54,
+    height: 54,
   },
-  exportText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   importBtn: {
-    backgroundColor: "#5856D6",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+    width: 54,
+    height: 54,
   },
-  importText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   searchSort: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
     gap: 12,
+    marginBottom: 2,
   },
   searchInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     borderRadius: 8,
     padding: 8,
     marginRight: 8,
+    backgroundColor: '#fff',
   },
-  sortBtn: { color: "#007AFF", fontWeight: "bold" },
-  item: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderColor: "#eee",
+  sortBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
-  name: { fontSize: 18, fontWeight: "bold" },
-  label: { color: "#666" },
-  editBtn: {
-    marginLeft: 8,
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    marginHorizontal: 18,
+    marginTop: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardTitle: {
+    fontSize: 19,
+    color: '#11181C',
+    marginBottom: 2,
+  },
+  cardSubtitle: {
+    color: '#6e6e73',
+    fontSize: 15,
+    marginBottom: 2,
+  },
+  cardMeta: {
+    color: '#C7C7CC',
+    fontSize: 13,
+    marginTop: 2,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 12,
+  },
+  iconBtn: {
     padding: 6,
-    backgroundColor: "#eee",
-    borderRadius: 6,
+    borderRadius: 20,
   },
-  editText: { color: "#007AFF", fontWeight: "bold" },
-  deleteBtn: {
-    marginLeft: 8,
-    padding: 6,
-    backgroundColor: "#ffdddd",
-    borderRadius: 6,
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 32,
+    backgroundColor: '#1f6feb',
+    borderRadius: 32,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  deleteText: { color: "#d00", fontWeight: "bold" },
 });
