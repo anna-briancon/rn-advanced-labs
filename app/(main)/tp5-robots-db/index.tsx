@@ -1,53 +1,36 @@
 
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useDeleteRobot, useRobotsQuery } from '../../tp5-robots-db/hooks/useRobotQueries';
 import * as robotRepo from '../../tp5-robots-db/services/robotRepo';
 
 type Robot = robotRepo.Robot;
 
 export default function RobotsListScreen() {
 	const router = useRouter();
-	const [robots, setRobots] = useState<Robot[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [q, setQ] = useState('');
 	const [sort, setSort] = useState<'name' | 'year'>('name');
 	const [refreshing, setRefreshing] = useState(false);
 
-	const fetchRobots = useCallback(async () => {
-		setLoading(true);
-		try {
-			const data = await robotRepo.list({ q, sort, archived: false });
-			setRobots(data);
-		} catch (e) {
-			// Ne rien faire si la table est vide ou absente, ignorer l'erreur d'affichage
-			setRobots([]);
-		} finally {
-			setLoading(false);
-		}
-	}, [q, sort]);
-
-	useEffect(() => {
-		fetchRobots();
-	}, [fetchRobots]);
-
+	const { data: robots = [], isLoading, refetch, isFetching } = useRobotsQuery();
+	const { mutateAsync: deleteRobot } = useDeleteRobot();
 	const onRefresh = async () => {
 		setRefreshing(true);
-		await fetchRobots();
+		await refetch();
 		setRefreshing(false);
 	};
 
-	const handleDelete = async (id: string) => {
-		Alert.alert('Supprimer', 'Confirmer la suppression ?', [
-			{ text: 'Annuler', style: 'cancel' },
-			{
-				text: 'Supprimer', style: 'destructive', onPress: async () => {
-					await robotRepo.remove(id);
-					fetchRobots();
+		const handleDelete = async (id: string) => {
+			Alert.alert('Supprimer', 'Confirmer la suppression ?', [
+				{ text: 'Annuler', style: 'cancel' },
+				{
+					text: 'Supprimer', style: 'destructive', onPress: async () => {
+						await deleteRobot(id);
+					}
 				}
-			}
-		]);
-	};
+			]);
+		};
 
 	const renderItem = ({ item }: { item: Robot }) => (
 		<View style={styles.item}>
@@ -78,24 +61,24 @@ export default function RobotsListScreen() {
 					placeholder="Recherche..."
 					value={q}
 					onChangeText={setQ}
-					onSubmitEditing={fetchRobots}
+					  onSubmitEditing={() => refetch()}
 				/>
 				<TouchableOpacity onPress={() => setSort(sort === 'name' ? 'year' : 'name')}>
 					<Text style={styles.sortBtn}>Trier: {sort === 'name' ? 'Nom' : 'Année'}</Text>
 				</TouchableOpacity>
 			</View>
-			{loading ? (
-				<ActivityIndicator style={{ marginTop: 40 }} />
-			) : (
-				<FlatList
-					data={robots}
-					keyExtractor={item => item.id}
-					renderItem={renderItem}
-					refreshing={refreshing}
-					onRefresh={onRefresh}
-					ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 40 }}>Aucun robot</Text>}
-				/>
-			)}
+					{isLoading || isFetching ? (
+						<ActivityIndicator style={{ marginTop: 40 }} />
+					) : (
+						<FlatList
+							data={robots}
+							keyExtractor={item => item.id}
+							renderItem={renderItem}
+							refreshing={refreshing}
+							onRefresh={onRefresh}
+							ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 40 }}>Aucun robot</Text>}
+						/>
+					)}
 		</View>
 	);
 }
