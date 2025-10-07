@@ -1,5 +1,7 @@
+
+
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../db/index';
+import { getDatabase } from '../db/index';
 
 export type RobotType = 'industrial' | 'service' | 'medical' | 'educational' | 'other';
 
@@ -21,79 +23,6 @@ export interface RobotInput {
 	type: RobotType;
 }
 
-export async function create(robot: RobotInput): Promise<Robot> {
-	const id = uuidv4();
-	const now = new Date().toISOString();
-	return new Promise((resolve, reject) => {
-		db.transaction(tx => {
-			tx.executeSql(
-				`INSERT INTO robots (id, name, label, year, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);`,
-				[id, robot.name, robot.label, robot.year, robot.type, now, now],
-				() => resolve({ ...robot, id, created_at: now, updated_at: now }),
-				(_, err) => { reject(err); return false; }
-			);
-		});
-	});
-}
-
-export async function update(id: string, changes: Partial<RobotInput>): Promise<void> {
-	const now = new Date().toISOString();
-	const fields = Object.keys(changes).map(k => `${k} = ?`).join(', ');
-	const values = Object.values(changes);
-	return new Promise((resolve, reject) => {
-		db.transaction(tx => {
-			tx.executeSql(
-				`UPDATE robots SET ${fields}, updated_at = ? WHERE id = ?;`,
-				[...values, now, id],
-				() => resolve(),
-				(_, err) => { reject(err); return false; }
-			);
-		});
-	});
-}
-
-export async function remove(id: string): Promise<void> {
-	// Soft delete si colonne archived existe, sinon hard delete
-	return new Promise((resolve, reject) => {
-		db.transaction(tx => {
-			tx.executeSql(
-				`UPDATE robots SET archived = 1 WHERE id = ?;`,
-				[id],
-				(_, res) => {
-					if (res.rowsAffected === 0) {
-						// fallback hard delete si pas de colonne archived
-						tx.executeSql(
-							`DELETE FROM robots WHERE id = ?;`,
-							[id],
-							() => resolve(),
-							(_, err) => { reject(err); return false; }
-						);
-					} else {
-						resolve();
-					}
-				},
-				(_, err) => { reject(err); return false; }
-			);
-		});
-	});
-}
-
-export async function getById(id: string): Promise<Robot | null> {
-	return new Promise((resolve, reject) => {
-		db.transaction(tx => {
-			tx.executeSql(
-				`SELECT * FROM robots WHERE id = ?;`,
-				[id],
-				(_, res) => {
-					if (res.rows.length > 0) resolve(res.rows.item(0));
-					else resolve(null);
-				},
-				(_, err) => { reject(err); return false; }
-			);
-		});
-	});
-}
-
 interface ListOptions {
 	q?: string;
 	sort?: 'name' | 'year';
@@ -102,7 +31,45 @@ interface ListOptions {
 	archived?: boolean;
 }
 
+export async function create(robot: RobotInput): Promise<Robot> {
+	const db = await getDatabase();
+	const id = uuidv4();
+	const now = new Date().toISOString();
+	await db.runAsync(
+		`INSERT INTO robots (id, name, label, year, type, created_at, updated_at, archived) VALUES (?, ?, ?, ?, ?, ?, ?, 0);`,
+		[id, robot.name, robot.label, robot.year, robot.type, now, now]
+	);
+	return { ...robot, id, created_at: now, updated_at: now };
+}
+
+export async function update(id: string, changes: Partial<RobotInput>): Promise<void> {
+	const db = await getDatabase();
+	const now = new Date().toISOString();
+	const fields = Object.keys(changes).map(k => `${k} = ?`).join(', ');
+	const values = Object.values(changes);
+	await db.runAsync(
+		`UPDATE robots SET ${fields}, updated_at = ? WHERE id = ?;`,
+		[...values, now, id]
+	);
+}
+
+export async function remove(id: string): Promise<void> {
+	const db = await getDatabase();
+	// Soft delete (archived=1), fallback hard delete si pas de colonne archived
+	const res = await db.runAsync(`UPDATE robots SET archived = 1 WHERE id = ?;`, [id]);
+	if (res.changes === 0) {
+		await db.runAsync(`DELETE FROM robots WHERE id = ?;`, [id]);
+	}
+}
+
+export async function getById(id: string): Promise<Robot | null> {
+	const db = await getDatabase();
+	const result = await db.getFirstAsync<Robot>(`SELECT * FROM robots WHERE id = ?;`, [id]);
+	return result ?? null;
+}
+
 export async function list(options: ListOptions = {}): Promise<Robot[]> {
+	const db = await getDatabase();
 	let sql = 'SELECT * FROM robots WHERE 1=1';
 	const params: any[] = [];
 	if (options.q) {
@@ -124,20 +91,7 @@ export async function list(options: ListOptions = {}): Promise<Robot[]> {
 		sql += ' OFFSET ?';
 		params.push(options.offset);
 	}
-	return new Promise((resolve, reject) => {
-		db.transaction(tx => {
-			tx.executeSql(
-				sql + ';',
-				params,
-				(_, res) => {
-					const items: Robot[] = [];
-					for (let i = 0; i < res.rows.length; i++) {
-						items.push(res.rows.item(i));
-					}
-					resolve(items);
-				},
-				(_, err) => { reject(err); return false; }
-			);
-		});
-	});
+	const rows = await db.getAllAsync<Robot>(sql + ';', params);
+	return rows;
 }
+

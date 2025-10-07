@@ -122,6 +122,43 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="tp4-robots-rtk/edit/[id]"
+        options={{
+          title: "Éditer Robot",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="tp4-robots-rtk/create"
+        options={{
+          title: "Créer Robot",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="tp5-robots-db"
+        options={{
+          title: "TP5 - Robots DB",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="robot" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="tp5-robots-db/edit/[id]"
+        options={{
+          title: "Éditer Robot",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="tp5-robots-db/create"
+        options={{
+          title: "Créer Robot",
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

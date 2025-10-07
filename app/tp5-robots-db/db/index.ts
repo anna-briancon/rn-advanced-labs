@@ -1,77 +1,122 @@
-import { readAsStringAsync } from 'expo-file-system';
+
 import * as SQLite from 'expo-sqlite';
 
-const DB_NAME = 'robots.db';
-const DB_VERSION = 3;
-
-const migrationFiles = [
-  './migrations/001_init.sql',
-  './migrations/002_add_indexes.sql',
-  './migrations/003_add_archived.sql',
-];
-
-export let db: SQLite.SQLiteDatabase;
-
-export async function openDatabaseAsync() {
-	db = SQLite.openDatabase(DB_NAME);
-	await runMigrations(db);
-	return db;
+// Interface pour les migrations
+interface Migration {
+	version: number;
+	filename: string;
+	sql: string;
 }
 
-async function runMigrations(db: SQLite.SQLiteDatabase) {
-	const userVersion = await getUserVersion(db);
-	for (let i = userVersion; i < DB_VERSION; i++) {
-		const migrationSQL = await getMigrationSQL(i);
-		if (migrationSQL) {
-			await execSqlAsync(db, migrationSQL);
-		}
+// Instance de la base de données
+let db: SQLite.SQLiteDatabase | null = null;
+
+// Fonction pour ouvrir la base de données
+export const openDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+	if (db) {
+		return db;
 	}
-	await setUserVersion(db, DB_VERSION);
-}
 
+	try {
+		db = await SQLite.openDatabaseAsync('robots.db');
+		// Exécuter les migrations au démarrage
+		await runMigrations(db);
+		return db;
+	} catch (error) {
+		console.error("Erreur lors de l'ouverture de la base de données:", error);
+		throw error;
+	}
+};
 
-function getMigrationSQL(index: number): Promise<string> {
-  // On lit toujours le fichier SQL avec expo-file-system
-  return readAsStringAsync(migrationFiles[index]);
-}
+// Fonction pour obtenir la version actuelle de la base
+const getCurrentVersion = async (database: SQLite.SQLiteDatabase): Promise<number> => {
+	try {
+		const result = await database.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
+		return result?.user_version || 0;
+	} catch (error) {
+		console.error('Erreur lors de la récupération de la version:', error);
+		return 0;
+	}
+};
 
+// Fonction pour définir la version de la base
+const setVersion = async (database: SQLite.SQLiteDatabase, version: number): Promise<void> => {
+	try {
+		await database.execAsync(`PRAGMA user_version = ${version}`);
+	} catch (error) {
+		console.error('Erreur lors de la définition de la version:', error);
+		throw error;
+	}
+};
 
-function execSqlAsync(db: SQLite.SQLiteDatabase, sql: string): Promise<void> {
-	return new Promise((resolve, reject) => {
-		db.transaction(tx => {
-			tx.executeSql(
-				sql,
-				[],
-				() => resolve(),
-				(_, error) => {
-					reject(error);
-					return false;
-				}
-			);
-		});
-	});
-}
+// Fonction pour charger les migrations
+const loadMigrations = async (): Promise<Migration[]> => {
+	const migrations: Migration[] = [
+		{
+			version: 1,
+			filename: '001_init.sql',
+			sql: `CREATE TABLE IF NOT EXISTS robots (
+				id TEXT PRIMARY KEY,
+				name TEXT NOT NULL UNIQUE,
+				label TEXT NOT NULL,
+				year INTEGER NOT NULL,
+				type TEXT NOT NULL CHECK (type IN ('industrial', 'service', 'medical', 'educational', 'other')),
+				created_at TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			);`
+		},
+		{
+			version: 2,
+			filename: '002_add_indexes.sql',
+			sql: `CREATE INDEX IF NOT EXISTS idx_robots_name ON robots(name);
+						CREATE INDEX IF NOT EXISTS idx_robots_year ON robots(year);
+						CREATE INDEX IF NOT EXISTS idx_robots_created_at ON robots(created_at);
+						CREATE INDEX IF NOT EXISTS idx_robots_updated_at ON robots(updated_at);`
+		},
+		{
+			version: 3,
+			filename: '003_add_archived.sql',
+			sql: `ALTER TABLE robots ADD COLUMN archived INTEGER NOT NULL DEFAULT 0;
+						CREATE INDEX IF NOT EXISTS idx_robots_archived ON robots(archived);
+						CREATE INDEX IF NOT EXISTS idx_robots_active_name ON robots(name) WHERE archived = 0;`
+		}
+	];
+	return migrations;
+};
 
+// Fonction pour exécuter les migrations
+const runMigrations = async (database: SQLite.SQLiteDatabase): Promise<void> => {
+	try {
+		const currentVersion = await getCurrentVersion(database);
+		const migrations = await loadMigrations();
+		// Trier les migrations par version
+		const pendingMigrations = migrations
+			.filter(migration => migration.version > currentVersion)
+			.sort((a, b) => a.version - b.version);
 
-function getUserVersion(db: SQLite.SQLiteDatabase): Promise<number> {
-	return new Promise((resolve, reject) => {
-		db.transaction(tx => {
-			tx.executeSql(
-				'PRAGMA user_version;',
-				[],
-				(_, res) => {
-					resolve(res.rows.item(0).user_version || 0);
-				},
-				(_, err) => {
-					reject(err);
-					return false;
-				}
-			);
-		});
-	});
-}
+		for (const migration of pendingMigrations) {
+			await database.withTransactionAsync(async () => {
+				await database.execAsync(migration.sql);
+				await setVersion(database, migration.version);
+			});
+		}
+	} catch (error) {
+		console.error("Erreur lors de l'exécution des migrations:", error);
+		throw error;
+	}
+};
 
+// Fonction pour fermer la base de données
+export const closeDatabase = async (): Promise<void> => {
+	if (db) {
+		await db.closeAsync();
+		db = null;
+	}
+};
 
-function setUserVersion(db: SQLite.SQLiteDatabase, version: number): Promise<void> {
-  return execSqlAsync(db, `PRAGMA user_version = ${version};`);
-}
+// Fonction pour obtenir l'instance de la base de données (à utiliser dans les repositories)
+export const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+	return await openDatabase();
+};
+
+export default { openDatabase, closeDatabase, getDatabase };
