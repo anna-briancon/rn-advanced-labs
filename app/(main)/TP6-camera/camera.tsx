@@ -1,8 +1,9 @@
 
+import { Ionicons } from '@expo/vector-icons';
 import { CameraView } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
-import { Button, Linking, StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useCameraPermission } from "./lib/hooks/useCameraPermission";
 import { usePhotoStorage } from "./lib/hooks/usePhotoStorage";
 
@@ -21,11 +22,15 @@ export default function CameraScreen() {
   if (status === "denied") {
     return (
       <View style={styles.center}>
-        <Text style={{ marginBottom: 16, textAlign: "center" }}>
+        <Text style={styles.errorText}>
           L'accès à la caméra est refusé. Vous pouvez l'activer dans les réglages de votre appareil.
         </Text>
-        <Button title="Ouvrir les réglages" onPress={() => Linking.openSettings()} />
-        <Button title="Réessayer" onPress={requestPermission} />
+        <TouchableOpacity style={[styles.button, { backgroundColor: '#2563EB' }]} onPress={() => Linking.openSettings()}>
+          <Text style={styles.buttonText}>Ouvrir les réglages</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, { backgroundColor: '#1E3A8A' }]} onPress={requestPermission}>
+          <Text style={styles.buttonText}>Réessayer</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -43,31 +48,98 @@ export default function CameraScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <CameraView ref={cameraRef} style={{ flex: 1 }} facing={facing} />
-
-      <View style={styles.buttonsContainer}>
-        <Button
-          title="Basculer"
-          onPress={() => setFacing(facing === "back" ? "front" : "back")}
-        />
-        <Button title="Prendre photo" onPress={takePhoto} />
+    <View style={styles.container}>
+      <View style={styles.cameraWrapper}>
+        <CameraView ref={cameraRef} style={styles.camera} facing={facing} />
+        {/* Switch camera icon en haut à droite */}
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={() => setFacing(facing === 'back' ? 'front' : 'back')}
+          accessibilityLabel="Basculer la caméra"
+        >
+          <Ionicons name="camera-reverse-outline" size={32} color="#fff" />
+        </TouchableOpacity>
+        {/* Bouton rond pour prendre la photo */}
+        <View style={styles.shutterContainer} pointerEvents="box-none">
+          <TouchableOpacity
+            style={styles.shutterButton}
+            onPress={takePhoto}
+            accessibilityLabel="Prendre une photo"
+          />
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  buttonsContainer: {
-    position: "absolute",
-    bottom: 30,
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-around",
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  cameraWrapper: {
+    flex: 1,
+    position: 'relative',
+    backgroundColor: '#000',
+  },
+  camera: {
+    flex: 1,
+  },
+  switchButton: {
+    position: 'absolute',
+    top: 40,
+    right: 30,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 24,
+    padding: 8,
+    zIndex: 10,
+  },
+  shutterContainer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  shutterButton: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#fff',
+    borderWidth: 6,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8FBFF',
+    padding: 24,
+  },
+  errorText: {
+    marginBottom: 16,
+    textAlign: 'center',
+    color: '#DC2626',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    elevation: 3,
+    marginVertical: 6,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

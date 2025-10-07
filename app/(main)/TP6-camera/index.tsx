@@ -26,14 +26,7 @@ export default function GalleryScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>📷 Ma Galerie</Text>
-        <TouchableOpacity
-          style={styles.cameraButton}
-          onPress={() => router.push("/TP6-camera/camera")}
-        >
-          <Ionicons name="camera" size={24} color="white" />
-          <Text style={styles.cameraButtonText}>Nouvelle photo</Text>
-        </TouchableOpacity>
+        <Text style={styles.title}>Ma Galerie</Text>
       </View>
 
       {loading ? (
@@ -53,12 +46,23 @@ export default function GalleryScreen() {
             <TouchableOpacity
               style={styles.photoWrapper}
               onPress={() => router.push(`/TP6-camera/detail/${item.id}`)}
+              activeOpacity={0.8}
             >
               <Image source={{ uri: item.uri }} style={styles.photo} />
             </TouchableOpacity>
           )}
         />
       )}
+
+      {/* Bouton flottant pour nouvelle photo */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push("/TP6-camera/camera")}
+        accessibilityLabel="Prendre une nouvelle photo"
+        activeOpacity={0.7}
+      >
+        <Ionicons name="camera" size={32} color="#222" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -66,68 +70,74 @@ export default function GalleryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FBFF",
-    paddingHorizontal: 10,
-    paddingTop: 40,
+    backgroundColor: '#fff',
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 15,
+    paddingTop: 28,
+    paddingBottom: 16,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    backgroundColor: '#fff',
+    marginBottom: 0,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#1E3A8A",
-  },
-  cameraButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#2563EB",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    elevation: 2,
-  },
-  cameraButtonText: {
-    color: "white",
-    fontWeight: "600",
-    marginLeft: 6,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#222',
+    letterSpacing: 0.5,
   },
   gallery: {
-    paddingBottom: 20,
-    justifyContent: "center",
+    paddingBottom: 80,
+    paddingTop: 8,
+    paddingHorizontal: 8,
   },
   photoWrapper: {
     flex: 1 / 3,
     aspectRatio: 1,
-    margin: 5,
-    borderRadius: 12,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    margin: 4,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#f4f4f4',
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   photo: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 32,
+    alignSelf: 'center',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
   },
   loading: {
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 50,
-    color: "#64748B",
+    color: '#64748B',
+    fontSize: 16,
   },
   emptyContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyText: {
     marginTop: 10,
-    color: "#94A3B8",
+    color: '#94A3B8',
     fontSize: 16,
   },
 });
