@@ -1,8 +1,21 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { deletePhoto, getPhoto, Photo } from "../lib/camera/storage";
+  const handleShare = async () => {
+    if (!photo) return;
+    try {
+      await Share.share({
+        url: photo.uri,
+        message: 'Voici une photo prise avec mon app !',
+        title: 'Partager la photo',
+      });
+    } catch (e) {
+      Alert.alert('Erreur', 'Impossible de partager la photo.');
+    }
+  };
+
 
 export default function PhotoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -38,6 +51,19 @@ export default function PhotoDetailScreen() {
     );
   };
 
+  const handleShare = async () => {
+    if (!photo) return;
+    try {
+      await Share.share({
+        url: photo.uri,
+        message: 'Voici une photo prise avec mon app !',
+        title: 'Partager la photo',
+      });
+    } catch (e) {
+      Alert.alert('Erreur', 'Impossible de partager la photo.');
+    }
+  };
+
   if (!photo) {
     return (
       <View style={styles.center}>
@@ -68,6 +94,12 @@ export default function PhotoDetailScreen() {
           onPress={() => router.replace("/TP6-camera")}
         >
           <Ionicons name="arrow-back" size={22} color="#222" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#fff', borderColor: '#10b981', borderWidth: 2 }]}
+          onPress={handleShare}
+        >
+          <Ionicons name="share-outline" size={22} color="#10b981" />
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: '#fff', borderColor: '#DC2626', borderWidth: 2 }]}
