@@ -125,6 +125,26 @@ export default function HomeScreen() {
             CRUD de robots avec Redux Toolkit
           </ThemedText>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.8}
+          onPress={() => router.push("/tp5-robots-db")}
+        >
+          <View style={styles.cardContent}>
+            <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
+              TP5 – Robots DB (SQLite)
+            </ThemedText>
+            <IconSymbol
+              name="chevron.right"
+              size={15}
+              color="#C7C7CC"
+              style={styles.chevron}
+            />
+          </View>
+          <ThemedText style={styles.cardSubtitle}>
+            CRUD persistant avec SQLite, export/import JSON
+          </ThemedText>
+        </TouchableOpacity>
       </View>
     </ParallaxScrollView>
   );

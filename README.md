@@ -11,6 +11,7 @@ Application **Expo React Native** servant de support pour tous les TP du cours.
 - [3️⃣ TP3 – Formulaires avancés (Formik vs React Hook Form)](#3️⃣-tp3--formulaires-avancés-formik-vs-react-hook-form)
 - [4️⃣ TP4A – Robots (CRUD + Zustand)](#4️⃣-tp4a--robots-crud--zustand)
 - [4️⃣ TP4B – Robots (CRUD + Redux Toolkit)](#4️⃣-tp4b--robots-crud--redux-toolkit)
+- [5️⃣ TP5 – Robots (SQLite, offline)](#5️⃣-tp5--robots-sqlite-offline)
 
 
 
@@ -306,3 +307,60 @@ app/tp4-robots-rtk/
 | **uuid**            | Génère des identifiants uniques (UUID) pour chaque robot                                        |
 | **Formik + Yup**    | Gèrent les formulaires et la validation côté client                              |
 | **@tanstack/react-query** (optionnel) | Gère le cache, l’invalidation et la synchronisation automatique des données robots |
+
+---
+**Migrations et stratégie de version**
+
+- **Migrations SQL** :  
+  Les scripts de migration sont dans `app/tp5-robots-db/db/migrations/` :
+  - `001_init.sql` : création de la table robots (v1)
+  - `002_add_indexes.sql` : ajout d’index pour accélérer les requêtes (v2)
+  - `003_add_archived.sql` : ajout d’un champ `archived` (v3)
+- **Stratégie** :  
+  À chaque lancement, la version de la base est vérifiée :  
+  - Si la DB est en v1, on applique v2 puis v3.
+  - Les migrations sont **idempotentes** : aucun risque de perte de données.
+  - Testé : démarrage en v1, puis application successive de v2 et v3 → la DB est à jour, les robots existants sont conservés.
+---
+**Architecture dossier**
+
+```
+app/(main)/tp5-robots-db/
+  index.tsx            # Liste des robots
+  create.tsx           # Création
+  edit/[id].tsx        # Édition
+  _layout.tsx          # Stack navigation
+app/tp5-robots-db/
+  db/
+    index.ts           # Connexion, migrations, helpers SQL
+    migrations/        # Scripts SQL versionnés
+  hooks/useRobotQueries.ts # Hooks React Query (CRUD)
+  services/robotRepo.ts    # Accès bas niveau à la DB (CRUD)
+  utils/                 # Utilitaires (export/import JSON)
+```
+---
+**Plan de tests manuels exécutés**
+
+- **Migrations** :  
+  - Démarrer en v1, appliquer v2 puis v3 → la DB est à jour, aucune perte de robots.
+- **CRUD complet** :  
+  - Créer un robot → il apparaît dans la liste.
+  - Modifier un robot → les changements sont visibles.
+  - Supprimer un robot → il disparaît de la liste.
+- **Persistance** :  
+  - Créer plusieurs robots, redémarrer l’app → les robots sont toujours présents.
+- **Export** :  
+  - Exporter les robots → un fichier JSON est généré, sa taille et son contenu correspondent à la liste.
+- **(Bonus) Import** :  
+  - Importer un fichier JSON exporté → les robots sont rechargés dans l’app.
+- **UX** :  
+  - Clavier ne masque pas le bouton submit (KeyboardAvoidingView).
+  - Spinner affiché pendant les requêtes longues.
+  - Erreurs claires (unicité, année, etc.).
+  - L’UI reste réactive (API async).
+---
+**Captures d’écran**
+
+| Liste des robots | Export JSON | Import JSON |
+|---|---|---|
+| ![Liste](./docs/captures/TP5/LISTE.PNG) | ![Export](./docs/captures/TP5/EXPORT.jpg) | ![Import](./docs/captures/TP5/IMPORT.PNG) |
