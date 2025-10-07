@@ -12,6 +12,7 @@ Application **Expo React Native** servant de support pour tous les TP du cours.
 - [4️⃣ TP4A – Robots (CRUD + Zustand)](#4️⃣-tp4a--robots-crud--zustand)
 - [4️⃣ TP4B – Robots (CRUD + Redux Toolkit)](#4️⃣-tp4b--robots-crud--redux-toolkit)
 - [5️⃣ TP5 – Robots (SQLite, offline)](#5️⃣-tp5--robots-sqlite-offline)
+- [6️⃣ TP6 – Caméra & Galerie locale](#6️⃣-tp6--caméra--galerie-locale)
 
 
 
@@ -364,3 +365,15 @@ app/tp5-robots-db/
 | Liste des robots | Export JSON | Import JSON |
 |---|---|---|
 | ![Liste](./docs/captures/TP5/LISTE.PNG) | ![Export](./docs/captures/TP5/EXPORT.jpg) | ![Import](./docs/captures/TP5/IMPORT.PNG) |
+
+---
+
+## 6️⃣ TP6 – Caméra & Galerie locale
+
+**Dépendances**
+
+| Package             | Rôle principal                                                                 |
+|---------------------|-------------------------------------------------------------------------------|
+| expo-camera         | Accès à la caméra, prévisualisation et capture de photos                      |
+| expo-file-system    | Stockage, lecture, suppression de fichiers locaux dans l’app                  |
+| expo-media-library* | (Optionnel) Sauvegarde dans la galerie système (Photos)                      |
