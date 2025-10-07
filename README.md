@@ -377,3 +377,49 @@ app/tp5-robots-db/
 | expo-camera         | Accès à la caméra, prévisualisation et capture de photos                      |
 | expo-file-system    | Stockage, lecture, suppression de fichiers locaux dans l’app                  |
 | expo-media-library* | (Optionnel) Sauvegarde dans la galerie système (Photos)                      |
+
+---
+**Arborescence**
+
+```
+app/(main)/TP6-camera/
+  index.tsx            # Galerie (liste des miniatures)
+  camera.tsx           # Écran de prise de vue
+  detail/[id].tsx      # Écran Détail (afficher, supprimer…)
+  lib/
+    camera/
+      storage.ts       # Fonctions: savePhoto, listPhotos, getPhoto, deletePhoto
+      types.ts         # Type Photo: { id, uri, createdAt, size? }
+    hooks/
+      useCameraPermission.ts
+      usePhotoStorage.ts  # (optionnel)
+```
+
+---
+**Permissions**
+- iOS : Ajoutez `NSCameraUsageDescription` dans `app.json`.
+- Android : Permission `CAMERA` (Expo gère souvent cela automatiquement).
+- Demande au runtime via hook `useCameraPermission` à l’entrée de l’écran Caméra.
+- En cas de refus : UI explicite + bouton “Ouvrir les réglages”.
+
+---
+**Flux principal**
+1. Galerie : liste les photos locales (grille de miniatures, bouton "Prendre une photo").
+2. Caméra : preview, capture, enregistrement local via `expo-file-system` (dossier `photos/`).
+3. Après capture : retour automatique à la galerie avec feedback.
+4. Détail : affiche la photo, métadonnées, actions (supprimer, partager…).
+5. Suppression : retire le fichier + retour galerie.
+6. Persistance : les photos restent après redémarrage de l’app.
+---
+**Plan de tests manuels**
+1. Permissions : refuser → UI explicite ; accepter → caméra OK.
+2. Capture : prendre 2 photos → revenir Galerie → les 2 miniatures visibles.
+3. Détail : ouvrir une photo → afficher métadonnées.
+4. Suppression : supprimer une photo → retour Galerie → miniature disparue → le fichier n’existe plus.
+5. Persistance : redémarrer l’app → les photos sont toujours listées.
+6. (Optionnel) Partage ou Enregistrement dans la galerie système : vérifier le résultat.
+---
+**Captures d’écran**
+| Galerie | Caméra | Détail |
+|---|---|---|
+| ![Galerie](./docs/captures/TP6/GALERIE.PNG) | ![Caméra](./docs/captures/TP6/CAMERA.PNG) | ![Détail](./docs/captures/TP6/DETAIL.PNG) |
