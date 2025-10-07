@@ -145,6 +145,26 @@ export default function HomeScreen() {
             CRUD persistant avec SQLite, export/import JSON
           </ThemedText>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.8}
+          onPress={() => router.push("/TP6-camera")}
+        >
+          <View style={styles.cardContent}>
+            <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
+              TP6 – Caméra
+            </ThemedText>
+            <IconSymbol
+              name="chevron.right"
+              size={15}
+              color="#C7C7CC"
+              style={styles.chevron}
+            />
+          </View>
+          <ThemedText style={styles.cardSubtitle}>
+            Prendre des photos avec la caméra
+          </ThemedText>
+        </TouchableOpacity>
       </View>
     </ParallaxScrollView>
   );
