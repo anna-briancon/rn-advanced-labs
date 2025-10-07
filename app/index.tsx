@@ -12,7 +12,7 @@ export default function Index() {
   useEffect(() => {
     (async () => {
       const saved = await AsyncStorage.getItem(NAV_KEY);
-      if (!saved || saved === '/' || saved === '/index') {
+      if (!saved || saved === '/') {
         router.replace('./home');
       }
       setChecked(true);
