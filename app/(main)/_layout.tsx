@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import React from "react";
+
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -156,6 +156,29 @@ export default function TabLayout() {
         name="tp5-robots-db/create"
         options={{
           title: "Créer Robot",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="TP6-camera"
+        options={{
+          title: "TP6 - Camera",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="camera" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="TP6-camera/camera"
+        options={{
+          title: "Prendre Photo",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="TP6-camera/detail/[id]" 
+        options={{
+          title: "Choisir Photo",
           href: null,
         }}
       />
