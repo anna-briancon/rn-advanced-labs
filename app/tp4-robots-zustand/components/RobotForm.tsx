@@ -6,23 +6,32 @@ import { Controller, useForm } from 'react-hook-form';
 import { Alert, Keyboard, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { RobotInput, robotSchema } from '../validation/robotSchema';
 
+
+type FormValues = {
+	name: string;
+	label: string;
+	year?: string | number;
+	type?: 'industrial' | 'service' | 'medical' | 'educational' | 'other';
+};
+
 type Props = {
-	initialValues?: Partial<RobotInput>;
+	initialValues?: Partial<FormValues>;
 	onSubmit: (values: RobotInput) => Promise<void> | void;
 	mode: 'create' | 'edit';
 	submitLabel?: string;
+	submitting?: boolean;
 };
 
-export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }: Props) {
+export default function RobotForm({ initialValues, onSubmit, mode, submitLabel, submitting }: Props) {
 	const { control, handleSubmit, formState: { errors, isValid, isSubmitting }, setFocus } =
-		useForm<RobotInput>({
-			resolver: zodResolver(robotSchema),
+		useForm<FormValues>({
+			resolver: zodResolver(robotSchema as any),
 			mode: 'onChange',
 			defaultValues: {
 				name: '',
 				label: '',
-				year: undefined as unknown as number,
-				type: undefined as any,
+				year: undefined,
+				type: undefined,
 				...initialValues,
 			},
 		});
@@ -30,9 +39,14 @@ export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }
 	const labelRef = useRef<TextInput>(null);
 	const yearRef  = useRef<TextInput>(null);
 
-	const submit = async (data: RobotInput) => {
+	const submit = async (data: FormValues) => {
 		try {
-			await onSubmit(data);
+			const toSubmit: RobotInput = {
+				...data,
+				year: typeof data.year === 'string' ? parseInt(data.year, 10) : (data.year as number),
+				type: data.type as RobotInput['type'],
+			};
+			await onSubmit(toSubmit);
 			await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 		} catch (e: any) {
 			await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -40,6 +54,7 @@ export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }
 		}
 	};
 
+	const isBusy = !!submitting || isSubmitting;
 	return (
 		<KeyboardAvoidingView behavior={Platform.select({ ios: 'padding', android: undefined })} style={{ flex: 1 }}>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -59,7 +74,7 @@ export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }
 							onBlur={onBlur}
 							value={value}
 							onChangeText={onChange}
-							editable={!isSubmitting}
+							editable={!isBusy}
 						/>
 					)}
 				/>
@@ -80,7 +95,7 @@ export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }
 							onBlur={onBlur}
 							value={value}
 							onChangeText={onChange}
-							editable={!isSubmitting}
+							editable={!isBusy}
 						/>
 					)}
 				/>
@@ -100,7 +115,7 @@ export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }
 							onBlur={onBlur}
 							value={value ? String(value) : ''}
 							onChangeText={text => onChange(text.replace(/[^0-9]/g, ''))}
-							editable={!isSubmitting}
+							editable={!isBusy}
 						/>
 					)}
 				/>
@@ -115,7 +130,7 @@ export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }
 						<Picker
 							selectedValue={value}
 							onValueChange={onChange}
-							enabled={!isSubmitting}
+							enabled={!isBusy}
 						>
 							<Picker.Item label="Sélectionner..." value={undefined} />
 							<Picker.Item label="Industriel" value="industrial" />
@@ -131,7 +146,7 @@ export default function RobotForm({ initialValues, onSubmit, mode, submitLabel }
 				<Pressable
 					onPress={handleSubmit(submit)}
 					style={{ backgroundColor: isValid ? '#1f6feb' : '#ccc', padding: 16, borderRadius: 8, marginTop: 24 }}
-					disabled={!isValid || isSubmitting}
+					disabled={!isValid || isBusy}
 				>
 					<Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
 						{submitLabel || (mode === 'edit' ? 'Enregistrer' : 'Créer')}
