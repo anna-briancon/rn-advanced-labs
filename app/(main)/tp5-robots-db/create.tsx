@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 import RobotForm from '../../tp4-robots-zustand/components/RobotForm';
 import { RobotInput } from '../../tp4-robots-zustand/validation/robotSchema';
 import { useCreateRobot } from '../../tp5-robots-db/hooks/useRobotQueries';
@@ -31,11 +32,20 @@ export default function CreateRobotScreen() {
   };
 
   return (
-    <RobotForm
-      mode="create"
-      onSubmit={handleSubmit}
-      submitLabel="Créer"
-      initialValues={{}}
-    />
+    <View style={{ flex: 1 }}>
+      <RobotForm
+        mode="create"
+        onSubmit={handleSubmit}
+        submitLabel="Créer"
+        initialValues={{}}
+        submitting={submitting}
+      />
+      {submitting && (
+        <ActivityIndicator size="large" color="#1f6feb" style={{ marginTop: 16 }} />
+      )}
+      {!!error && (
+        <Text style={{ color: 'red', marginTop: 16, textAlign: 'center' }}>{error}</Text>
+      )}
+    </View>
   );
 }
