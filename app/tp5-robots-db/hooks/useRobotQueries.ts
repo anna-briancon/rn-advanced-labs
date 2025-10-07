@@ -5,7 +5,7 @@ import * as robotRepo from '../services/robotRepo';
 export function useRobotsQuery() {
   return useQuery({
     queryKey: ['robots'],
-    queryFn: () => robotRepo.list(),
+    queryFn: () => robotRepo.list({ archived: false }),
   });
 }
 
