@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { SafeAreaView } from 'react-native';
-import RobotForm from '../../../components/RobotForm';
-import { useRobotsStore } from '../../../store/robotsStore';
-import type { RobotInput } from '../../../validation/robotSchema';
+import RobotForm from '../../tp4-robots-zustand/components/RobotForm';
+import { useRobotsStore } from '../../tp4-robots-zustand/store/robotsStore';
+import type { RobotInput } from '../../tp4-robots-zustand/validation/robotSchema';
 
 export default function CreateRobotScreen() {
   const create = useRobotsStore(s => s.create);

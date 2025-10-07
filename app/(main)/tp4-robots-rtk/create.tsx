@@ -1,10 +1,10 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import RobotForm from '../../../components/RobotForm';
 import { useAppDispatch, useAppSelector } from '../../tp4-robots-rtk/hooks';
 import { clearRobotError, createRobot } from '../../tp4-robots-rtk/robots/robotsSlice';
 import { store } from '../../tp4-robots-rtk/store';
 import { RobotInput } from '../../tp4-robots-rtk/validation/robotSchema';
+import RobotForm from '../../tp4-robots-zustand/components/RobotForm';
 
 export default function CreateRobotScreen() {
 	const dispatch = useAppDispatch();

@@ -176,13 +176,16 @@ app/(main)/tp4-robots/
   index.tsx            # Liste des robots
   create.tsx           # Création
   edit/[id].tsx        # Édition
-store/
-  robotsStore.ts       # Zustand : state + actions (CRUD) + persistance
-validation/
-  robotSchema.ts       # Zod : schéma de validation
-components/
-  RobotForm.tsx        # Formulaire réutilisable (create/edit)
-  RobotListItem.tsx    # Item de liste (nom, type, année, actions)
+app/tp4-robots-zustand/
+  store/
+    robotsStore.ts       # Zustand : state + actions (CRUD) + persistance
+  validation/
+    robotSchema.ts       # Zod : schéma de validation
+  types/
+    robot.ts             # Types TypeScript pour Robot
+  components/
+    RobotForm.tsx        # Formulaire réutilisable (create/edit)
+    RobotListItem.tsx    # Item de liste (nom, type, année, actions)
 ```
 
 ---

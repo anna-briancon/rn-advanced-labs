@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
-import { Robot } from '../../../types/robot';
+import { Robot } from '../../tp4-robots-zustand/types/robot';
 
 export interface RobotsState {
 	items: Robot[];

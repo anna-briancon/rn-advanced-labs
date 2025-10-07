@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { Robot } from '../../../types/robot';
+import { Robot } from '../../tp4-robots-zustand/types/robot';
 import { RootState } from '../rootReducer';
 
 export const selectRobots = (state: RootState) => state.robots.items;

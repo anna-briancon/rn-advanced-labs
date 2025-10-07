@@ -3,7 +3,7 @@ import { Picker } from '@react-native-picker/picker';
 import React, { useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
-import { RobotType } from '../../../types/robot';
+import { RobotType } from '../../tp4-robots-zustand/types/robot';
 import { RobotInput, robotSchema } from '../validation/robotSchema';
 
 type RobotFormProps = {

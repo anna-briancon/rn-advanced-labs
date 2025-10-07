@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '../../../components/themed-text';
 import { ThemedView } from '../../../components/themed-view';
-import { useRobotsStore } from '../../../store/robotsStore';
+import { useRobotsStore } from '../../tp4-robots-zustand/store/robotsStore';
 
 import { IconSymbol } from '../../../components/ui/icon-symbol';
 
