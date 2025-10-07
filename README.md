@@ -296,3 +296,13 @@ app/tp4-robots-rtk/
 - **UX** :
   - Clavier ne masque pas le bouton submit
   - Submit désactivé tant que formulaire invalide
+
+## 5️⃣ TP5 – Robots (SQLite, offline)
+**Dépendances principales**
+| Package             | Rôle principal                                                                                  |
+|---------------------|------------------------------------------------------------------------------------------------|
+| **expo-sqlite**     | Fournit une base de données SQLite locale pour stocker et requêter les robots (CRUD, migrations)|
+| **expo-file-system**| Permet d’exporter et d’importer les données robots au format JSON dans le stockage local        |
+| **uuid**            | Génère des identifiants uniques (UUID) pour chaque robot                                        |
+| **Formik + Yup**    | Gèrent les formulaires et la validation côté client                              |
+| **@tanstack/react-query** (optionnel) | Gère le cache, l’invalidation et la synchronisation automatique des données robots |
