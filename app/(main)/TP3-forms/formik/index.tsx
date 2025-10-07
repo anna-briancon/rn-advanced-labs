@@ -56,12 +56,15 @@ export default function TP3FormikScreen() {
             handleChange, handleBlur, handleSubmit, values, errors, touched, dirty,
             isValid, isSubmitting, setFieldValue,
           }) => {
-            const disableSubmit = !isValid || isSubmitting;
+            const disableSubmit = !isValid || isSubmitting || !dirty;
             const onErrorHaptic = () =>
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             // Afficher l'erreur seulement pour le champ en cours ou déjà rempli
             const showFieldError = (field: keyof typeof values) => {
-              return touched[field] || !!values[field];
+              const value = values[field];
+              if (typeof value === 'string' && value.length === 0) return false;
+              if (typeof value === 'boolean' && field === 'termsAccepted' && value === false) return false;
+              return touched[field] || (typeof value === 'string' ? value.length > 0 : !!value);
             };
             return (
               <View style={{ gap: 10 }}>
